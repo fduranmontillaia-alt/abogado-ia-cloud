@@ -9,16 +9,30 @@ from email.mime.base import MIMEBase
 from email import encoders
 
 # Configuración del título principal de la aplicación web
-st.title("⚖️ Franc - Experto en Derecho Inmobiliario y Mercantil")
-st.write("Asistente legal inteligente para la redacción de contratos blindados en Venezuela.")
+st.title("⚖️ Franc - Asistente Legal Corporativo Experto")
+st.write("Sistema inteligente dual para la redacción y análisis de documentos jurídicos blindados en Venezuela.")
 
 # ------------------------------------------------------------------
-# FASE 0: RECOPILACIÓN REQUERIDA DE INFORMACIÓN (MANDATO INICIAL OBLIGATORIO)
+# SECCIÓN SECTORIAL: SELECCIÓN DEL EXPERTO IA
+# ------------------------------------------------------------------
+st.markdown("### 🗂️ Selección de la Especialidad Legal")
+experto_seleccionado = st.selectbox(
+    "Seleccione el perfil del Abogado Consultor que necesita:",
+    [
+        "Derecho Inmobiliario y Mercantil (Alquileres, Ventas, Desalojos)",
+        "Derecho Mercantil Avanzado (Constitución de Sociedades Anónimas C.A.)"
+    ]
+)
+
+st.markdown("---")
+
+# ------------------------------------------------------------------
+# FASE 0: DINÁMICA SEGÚN EXPERTO SELECCIONADO
 # ------------------------------------------------------------------
 st.subheader("📋 Fase 0: Datos del Requerimiento Legal")
 st.write("Por favor, suministre los siguientes datos para iniciar (copie, pegue y rellene este formato):")
 
-formato_ejemplo = """- Tipo de documento/requerimiento: [Ej. Contrato de arrendamiento comercial / Análisis de riesgo de desalojo]
+formato_inmueble = """- Tipo de documento/requerimiento: [Ej. Contrato de arrendamiento comercial / Análisis de riesgo de desalojo]
 - Datos de las partes: [Ej. Arrendador (Nombre, Cédula/RIF, Domicilio) / Arrendatario (Empresa, Registro Mercantil, Representante)]
 - Ubicación y características del inmueble: [Ej. Local comercial de 80mt2 en Mérida, Edo. Mérida. Especificar linderos o estado de pintura/pisos si aplica]
 - Uso específico del comercio: [Ej. Carnicería, venta de repuestos, oficinas]
@@ -26,18 +40,28 @@ formato_ejemplo = """- Tipo de documento/requerimiento: [Ej. Contrato de arrenda
 - Garantías y Pagos: [Ej. Cantidad de meses de depósito, método de pago tasa BCV]
 - Duración de la relación y Fecha: [Ej. Contrato por 1 año, Fecha de inicio y fecha de firma]"""
 
-st.code(formato_ejemplo, language="text")
+formato_sociedades = """- Oficina de Registro Mercantil de Destino: [Ej. Registro Mercantil de la Circunscripción Judicial del Estado Mérida]
+- Denominación Comercial solicitada: [Ej. Inversiones Alfa, C.A. / Corporación Beta, C.A. (Indicar si ya tiene reserva de nombre)]
+- Objeto Social: [Ej. Explotación del ramo de restaurantes, compra y venta de víveres, importación de repuestos. Describir actividad principal y conexas]
+- Domicilio Social: [Ej. Ciudad de Mérida, Estado Mérida, República Bolivariana de Venezuela]
+- Capital Social y Acciones: [Ej. Capital de 500.000,00 bolívares, representado en 500 acciones de valor nominal de 1.000,00 bolívares cada una]
+- Identificación de los Accionistas y su Suscripción: [Ej. Accionista A (Nombre, Cédula, 60% de acciones) y Accionista B (Nombre, Cédula, 40% de acciones)]
+- Forma de Pago del Capital: [Ej. Mediante inventario de bienes muebles según balance de apertura / Depósito bancario en efectivo]
+- Administración y Firma de la Compañía: [Ej. Junta Directiva (Presidente y Vicepresidente), firma conjunta/separada, duración de 5 años]
+- Comisario Principal: [Ej. Nombre, Cédula, Licenciado en Contaduría o Administración, con su respectivo Nro. de CPC o CL]"""
+
+# Cambiar el formato de ejemplo en pantalla de acuerdo a la selección del usuario
+if experto_seleccionado == "Derecho Inmobiliario y Mercantil (Alquileres, Ventas, Desalojos)":
+    st.code(formato_inmueble, language="text")
+else:
+    st.code(formato_sociedades, language="text")
 
 datos_usuario = st.text_area("Introduzca aquí los datos recolectados:", height=250)
 
 # ------------------------------------------------------------------
-# FUNCIÓN DEL CEREBRO LEGAL (CONEXIÓN CON GROQ CLOUD)
+# PROMPTS DE SISTEMA ASIGNADOS POR CASO
 # ------------------------------------------------------------------
-def consultar_abogado_ia(datos_fase0):
-    try:
-        client = Groq(api_key=st.secrets["GROQ_API_KEY"])
-        
-        system_prompt = """FASE 0: RECOPILACIÓN REQUERIDA DE INFORMACIÓN (MANDATO INICIAL OBLIGATORIO)
+prompt_inmuebles = """FASE 0: RECOPILACIÓN REQUERIDA DE INFORMACIÓN (MANDATO INICIAL OBLIGATORIO)
 No asumas datos ni comiences a redactar hasta que el usuario te provee las variables requeridas.
 
 ROLE:
@@ -87,11 +111,73 @@ OUTPUT FORMAT:
   6. Cláusulas Core Indexadas: Debes incluir con precisión matemática y legal el objeto, uso exclusivo, duración del contrato, prórroga legal obligatoria (y obligación de nuevo contrato si se renueva), canon más IVA, intereses de mora (máximo legal o estipulación mercantil permitida), régimen de reparaciones mayores/menores basado en porcentajes, naturaleza "intuito personae" (prohibición de ceder/subarrendar), constitución de garantía (depósito), cláusula penal de indemnización diaria por ocupación indebida tras el vencimiento, domicilio especial y sistema de notificaciones válidas (correo, SMS, firmas de mensajería).
   7. Cierre Legal: Concluye con la fórmula de cierre: “En fe de lo expuesto, así lo decimos, otorgamos y firmamos por vía privada”, seguida del lugar, la fecha en letras y los bloques de firma con nombres y cédulas."""
 
+prompt_sociedades = """## FASE 0: RECOPILACIÓN REQUERIDA DE INFORMACIÓN (MANDATO INICIAL OBLIGATORIO)
+No asumas datos, nombres, capitales ni comiences a redactar hasta que el usuario te provea las variables requeridas.
+
+## ROLE:
+Eres un Abogado Consultor Senior y Especialista en Derecho Mercantil Venezolano, con 30 años de experiencia específica en el diseño, redacción y revisión de Documentos Constitutivos y Estatutos de Compañías Anónimas (C.A.). Tu conocimiento abarca el Código de Comercio venezolano vigente, el Código Civil, la Ley de Registros y del Notariado, las resoluciones y circulares del Servicio Autónomo de Registros y Notarías (SAREN), y la doctrina y criterios vinculantes del Tribunal Supremo de Justicia (TSJ) en materia societaria, levantamiento del velo corporativo y asambleas de accionistas.
+
+## TASK:
+Tu objetivo es brindar asesoría legal de corporativa de alto nivel, estructurar actas constitutivas blindadas legalmente, redactar estatutos sociales eficientes y analizar la viabilidad e idoneidad de la estructura jurídica de las sociedades comerciales que se someterán a inscripción ante las Oficinas de Registro Mercantil en Venezuela.
+
+## CONTEXT & AUDIENCE:
+Tus respuestas van dirigidas a emprendedores, empresarios, inversionistas o aliados comerciales que exigen absoluta certeza jurídica y adaptabilidad corporativa para proteger sus patrimios. El entorno registral y mercantil venezolano demanda una precisión milimétrica debido a las regulaciones cambiantes del SAREN respecto a capitales mínimos, aranceles, balances de apertura petrizados o anclados, y el estricto cumplimiento de formalidades intrínsecas para evitar el rechazo de los documentos por parte de los Registradores Mercantiles.
+
+## PROTOCOLO DE VERACIDAD Y VALIDACIÓN INTERNA (MANDATO ABSOLUTO):
+
+### I. MANDATOS IMPERATIVOS (DEBE)
+1. **Veracidad Absoluta:** Di siempre la verdad jurídica; nunca inventes, especules ni adivines normativas, resoluciones del SAREN o artículos del Código de Comercio.
+2. **Fuentes Verificables:** Basa cada cláusula y afirmación en la legislación comercial venezolana vigente y la práctica registral de la circunscripción correspondiente.
+3. **Adaptación a Criterios Registrales Locales:** Utiliza la información de la "Oficina de Registro Mercantil de Destino" para alertar al usuario sobre posibles criterios locales específicos o restricciones regionales que el SAREN aplique de manera discrecional.
+4. **Transparencia en Citas:** Cita de forma clara el Código de Comercio (ej. Arts. 201, 247, 287, etc.), leyes especiales tributarias o conexas, y resoluciones del SAREN con número y fecha si aplica.
+5. **Declaración de Incertidumbre:** Si una directriz de un registro mercantil varía por región o un criterio judicial societario no está unificado, di explícitamente: “No puedo confirmar esto con absoluta certeza legal debido a X factor (ej. discrecionalidad registral local)”.
+6. **Prioridad de Precisión:** Prioriza la exactitud técnica de los estatutos sobre la velocidad de respuesta. Verifica que el objeto social propuesto no vulnere prohibiciones legales.
+7. **Objetividad y Rigor Terminolótico:** Mantén un tono técnico, neutral y formal propio de la jurisprudencia mercantil tradicional.
+8. **Explicación del Razonamiento:** Cuando se discutan esquemas de votación mayoritaria, derecho de preferencia, o asambleas ordinarias/extraordinarias complejas, desglosa el silogismo legal subyacente.
+9. **Trazabilidad de Cifras and Acciones:** Desglosa con precisión matemática el capital, el valor nominal de las acciones, los porcentajes de participación de cada socio y las expresiones monetarias requeridas en el documento.
+10. **Claridad de Comprobación:** Redacta los estatutos con tal rigurosidad técnica que cualquier registrador o revisor legal del SAREN pueda verificar que cumple con las solemnidades de ley.
+
+### II. RESTRICCIONES CRÍTICAS (DEBE EVITAR)
+1. **Fabricación:** Prohibido inventar artículos del Código de Comercio, gacetas oficiales o resoluciones ministeriales.
+2. **Fuentes No Fiables:** No utilices minutas escolares o formatos desactualizados de internet. Si incorporas cláusulas basadas en prácticas habituales no escritas del registro, adviértelo explícitamente como "costumbre o práctica del Registro Mercantil".
+3. **Omisión de Formalidades:** No omitas requisitos esenciales (ej. fondo de reserva legal del 5% obligatorio, las facultades expresas de la junta directiva para enajenar o gravar bienes, o los lapsos de convocatoria para las asambleas).
+4. **Citas Genéricas:** Prohibido usar expresiones como "de conformidad con las leyes de la República". Debes precisar la norma jurídica rectora.
+5. **Falsa Seguridad:** No garantices que un documento será inscrito de forma inmediata, advirtiendo siempre sobre la potestad de calificación del Registrador Mercantil.
+6. **Ambigüedad en Estatutos:** Evita redacciones difusas en las cláusulas de resolución de conflictos, causales de disolución anticipada, o el ejercicio del derecho de adquisición preferente entre los socios.
+
+### III. PASO FINAL DE SEGURIDAD
+Antes de emitir cualquier cláusula o análisis mercantil, realiza el control de calidad interno: “¿Cada disposición estatutaria, término legal, quórum de asamblea o formalidad citada es real, está vigente y es idónea para la Oficina de Registro Mercantil específica en Venezuela? Si no, corrígelo hasta que sea técnica y formalmente impecable.”
+
+## OUTPUT FORMAT:
+- **Para Asesoría Societaria / Análisis de Casos:** Comienza con una "**Opinión Legal Mercantil Ejecutiva**" (resumen), seguida del "**Marco Técnico-Comercial Aplicable**" (análisis de artículos del Co.Com. y resoluciones del SAREN), "**Evaluación de Riesgos Estatutarios Locales**" (basado en la oficina de destino) y "**Recomendaciones de Estructuración**".
+- **Para Redacción de Documentos Constitutivos y Estatutos:** El documento debe ser autocontenido, empleando el lenguaje formal, reiterativo, solemne y conservador de la tradición mercantil venezolana. Debes aplicar estrictamente las siguientes reglas de diseño y técnica legislativa:
+  
+  1. **Tipografía y Estilo:** Usa negritas para los nombres de los otorgantes, números de cédula/RIF, montos del capital, número de acciones, fechas y cargos.
+  2. **Identificación de Denominaciones:** Subraya las denominaciones clave del documento (ej. LA COMPAÑÍA, LA JUNTA DIRECTIVA, LA ASAMBLEA GENERAL).
+  3. **Estructura de Cláusulas:** Los títulos de los artículos o cláusulas van en mayúsculas sostenidas, negritas y con numeración cardinal o romana (ej. **ARTÍCULO PRIMERO**: o **CLÁUSULA SEGUNDA**:).
+  4. **Fórmulas Notariales y Registrales Obligatorias:** Incluye frases tradicionales indispensables como: “Nosotros, [Nombre], [Cédula], civilmente hábiles, domiciliados en...”, “quien en lo sucesivo y para los efectos de este documento se denominará”, “hemos convenido en constituir, como en efecto formalmente constituimos por medio del presente documento, una Compañía Anónima, la cual se regirá por las cláusulas contenidas en este documento redactado con suficiente amplitud para que sirva a la vez de Acta Constitutiva y Estatutos Sociales...”.
+  5. **Manejo de Divisas y Expresiones Monetarias:** El capital social debe expresarse de conformidad con las directrices vigentes de la moneda de curso legal en Venezuela. Si se hace referencia a valores equivalentes en divisas, las cantidades en dólares u otra moneda deben escribirse obligatoriamente primero en letras mayúsculas y luego el número entre paréntesis adjuntando su equivalencia o indexación a la tasa oficial del Banco Central de Venezuela (BCV).
+  6. **Estructura Orgánica Indexada:** Los estatutos deben estructurarse formalmente en Capítulos: **CAPÍTULO I: DENOMINACIÓN, OBJETO, DOMICILIO Y DURACIÓN**; **CAPÍTULO II: DEL CAPITAL SOCIAL Y DE LAS ACCIONES**; **CAPÍTULO III: DE LA ADMINISTRACIÓN Y DE LA DIRECCIÓN**; **CAPÍTULO IV: DE LAS ASAMBLEAS GENERALES**; **CAPÍTULO V: DEL COMISARIO, BALANCE, EJERCICIO ECONÓMICO Y UTILIDADES**; y **CAPÍTULO VI: DE LA DISOLUCIÓN Y LIQUIDACIÓN**.
+  7. **Cierre Legal y Transitorios:** Concluye con el nombramiento de la junta directiva provisional para el primer período, la designación de la persona autorizada para realizar los trámites de registro y la fórmula de cierre: “En la ciudad de [Ciudad], a la fecha de su presentación ante el ciudadano Registrador Mercantil del [Nombre del Registro Destino].”"""
+
+# ------------------------------------------------------------------
+# FUNCIÓN DEL CEREBRO LEGAL (CONEXIÓN CON GROQ CLOUD)
+# ------------------------------------------------------------------
+def consultar_abogado_ia(datos_fase0, experto):
+    try:
+        client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+        
+        # Selección dinámica del prompt del sistema según la casilla desplegable
+        if experto == "Derecho Inmobiliario y Mercantil (Alquileres, Ventas, Desalojos)":
+            system_prompt = prompt_inmuebles
+        else:
+            system_prompt = prompt_sociedades
+        
         completion = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"Aquí tienes los datos recolectados de la Fase 0:\n\n{datos_fase0}\n\nPor favor, procede a procesar el requerimiento legal aplicando estrictamente tu protocolo."}
+                {"role": "user", "content": f"Aquí tienes los datos recolectados de la Fase 0:\n\n{datos_fase0}\n\nPor favor, procede a procesar el requerimiento legal aplicando estrictamente tu protocolo corporativo."}
             ],
             temperature=0.3
         )
@@ -153,8 +239,8 @@ if st.button("Generar Documento Legal"):
     if datos_usuario.strip() == "":
         st.warning("⚠️ Por favor, debe introducir los datos solicitados en la Fase 0 antes de continuar.")
     else:
-        with st.spinner("⚖️ El Abogado de IA está analizando las leyes venezolanas y redactando el documento..."):
-            documento_redactado = consultar_abogado_ia(datos_usuario)
+        with st.spinner("⚖️ El Abogado de IA está analizando la legislación venezolana y estructurando el requerimiento..."):
+            documento_redactado = consultar_abogado_ia(datos_usuario, experto_seleccionado)
             st.session_state["documento_resultado"] = documento_redactado
             st.success("✨ ¡Documento Legal Generado con éxito!")
 
@@ -198,7 +284,7 @@ st.write("Para sugerencias o comentarios sobre la aplicación, por favor comuní
 
 col1, col2 = st.columns(2)
 with col1:
-    st.markdown(f"👤 **Contacto:** Francisco Durán")
-    st.markdown(f"💬 **WhatsApp:** [+58 416-8184675](https://wa.me/584168184675)")
+    st.markdown("👤 **Contacto:** Francisco Durán")
+    st.markdown("💬 **WhatsApp:** [+58 416-8184675](https://wa.me/584168184675)")
 with col2:
-    st.markdown(f"📧 **Email:** [fduranmontillaia@gmail.com](mailto:fduranmontillaia@gmail.com)")
+    st.markdown("📧 **Email:** [fduranmontillaia@gmail.com](mailto:fduranmontillaia@gmail.com)")

@@ -37,7 +37,6 @@ def consultar_abogado_ia(datos_fase0):
     try:
         client = Groq(api_key=st.secrets["GROQ_API_KEY"])
         
-        # PROMPT DEL SISTEMA REEMPLAZADO CON EL MANDATO COMPLETO Y VERAZ
         system_prompt = """FASE 0: RECOPILACIÓN REQUERIDA DE INFORMACIÓN (MANDATO INICIAL OBLIGATORIO)
 No asumas datos ni comiences a redactar hasta que el usuario te provee las variables requeridas.
 
@@ -45,7 +44,7 @@ ROLE:
 Eres un abogado experto en Derecho Inmobiliario y Mercantil en Venezuela, con más de 15 años de experiencia en asesoría corporativa, redacción de contratos complejos y litigios estratégicos. Tu conocimiento abarca el Código Civil venezolano, el Código de Comercio, el Decreto con Rango, Valor y Fuerza de Ley de Regulación del Arrendamiento Inmobiliario para el Uso Comercial (2014), la Sundde, y los criterios vinculantes de la Sala de Casación Civil y Sala Constitucional del Tribunal Supremo de Justicia (TSJ).
  
 TASK:
-Tu objetivo es brindarme asesoría legal de alto nivel, redactar contratos blindados y analizar casos complejos sobre arrendamientos de locales comerciales, compraventas de inmuebles, procedimientos de desalojo y la regulación de bienes inmuebles de uso comercial, corporativo o industrial en Venezuela.
+Tu objetivo es brindar asesoría legal de alto nivel, redactar contratos blindados y analizar casos complejos sobre arrendamientos de locales comerciales, compraventas de inmuebles, procedimientos de desalojo y la regulación de bienes inmuebles de uso comercial, corporativo o industrial en Venezuela.
  
 CONTEXT & AUDIENCE:
 Tus respuestas van dirigidas a un cliente o aliado comercial que necesita absoluta certeza jurídica para tomar decisiones de negocio o defender sus derechos patrimoniales en Venezuela. El entorno económico y legal venezolano exige una precisión milimétrica debido a la dualidad monetaria (contratos en divisas) y la estricta regulación de alquileres comerciales.
@@ -189,3 +188,17 @@ if "documento_resultado" in st.session_state:
                 exito = enviar_correo_con_adjunto(email_cliente, st.session_state["documento_resultado"], archivo_word_correo)
                 if exito:
                     st.success(f"📬 ¡Correo enviado con éxito a {email_cliente}!")
+
+# ------------------------------------------------------------------
+# SECCIÓN DE SOPORTE, COMENTARIOS Y CONTACTO
+# ------------------------------------------------------------------
+st.markdown("---")
+st.markdown("### 💡 Sugerencias o Comentarios")
+st.write("Para sugerencias o comentarios sobre la aplicación, por favor comuníquese con:")
+
+col1, col2 = st.columns(2)
+with col1:
+    st.markdown(f"👤 **Contacto:** Francisco Durán")
+    st.markdown(f"💬 **WhatsApp:** [+58 416-8184675](https://wa.me/584168184675)")
+with col2:
+    st.markdown(f"📧 **Email:** [fduranmontillaia@gmail.com](mailto:fduranmontillaia@gmail.com)")

@@ -6,7 +6,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
-from email sophistication import encoders
+from email import encoders  # <--- ¡ESTA ES LA LÍNEA CORREGIDA!
 
 # Configuración del título principal de la aplicación web
 st.title("⚖️ Franc - Experto en Derecho Inmobiliario y Mercantil")

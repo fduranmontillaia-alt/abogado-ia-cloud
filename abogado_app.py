@@ -8,6 +8,18 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 
+# ------------------------------------------------------------------
+# INICIALIZACIÓN DEL ESTADO DE LA SESIÓN (CONTADORES Y CORRELATIVO)
+# ------------------------------------------------------------------
+if "contador_descargas" not in st.session_state:
+    st.session_state["contador_descargas"] = 0
+
+if "contador_envios" not in st.session_state:
+    st.session_state["contador_envios"] = 0
+
+if "correlativo_documento" not in st.session_state:
+    st.session_state["correlativo_documento"] = 0
+
 # Configuración del título principal de la aplicación web
 st.title("⚖️ Franc - Asistente Legal Corporativo Experto")
 st.write("Sistema inteligente dual para la redacción y análisis de documentos jurídicos blindados en Venezuela.")
@@ -53,7 +65,7 @@ formato_inmueble = """- Tipo de documento/requerimiento: [Ej. Contrato de arrend
 
 formato_sociedades = """- Oficina de Registro Mercantil de Destino: [Ej. Registro Mercantil de la Circunscripción Judicial del Estado Mérida]
 - Denominación Comercial solicitada: [Ej. Inversiones Alfa, C.A. / Corporación Beta, C.A. (Indicar si ya tiene reserva de nombre)]
-- Objeto Social: [Ej. Explotación del ramo de restaurantes, compra y venta de víveres, importación de repuestos. Describir actividad principal y conexas]
+- Objeto Social: [Ej. Explotación del ramo de restaurantes, compra y venta de víveres, importación de repuestos. Describir detalladamente la actividad comercial principal y conexas]
 - Domicilio Social: [Ej. Ciudad de Mérida, Estado Mérida, República Bolivariana de Venezuela]
 - Capital Social y Acciones: [Ej. Capital de 500.000,00 bolívares, representado en 500 acciones de valor nominal de 1.000,00 bolívares cada una]
 - Identificación de los Accionistas y su Suscripción: [Ej. Accionista A (Nombre, Cédula, 60% de acciones) y Accionista B (Nombre, Cédula, 40% de acciones)]
@@ -69,7 +81,7 @@ else:
 datos_usuario = st.text_area("Introduzca aquí los datos recolectados:", height=250)
 
 # ------------------------------------------------------------------
-# PROMPTS DE SISTEMA ASIGNADOS POR CASO (CORREGIDOS)
+# PROMPTS DE SISTEMA ASIGNADOS POR CASO
 # ------------------------------------------------------------------
 prompt_inmuebles = """FASE 0: RECOPILACIÓN REQUERIDA DE INFORMACIÓN (MANDATO INICIAL OBLIGATORIO)
 No asumas datos ni comiences a redactar hasta que el usuario te provee las variables requeridas.
@@ -110,7 +122,7 @@ III. PASO FINAL DE SEGURIDAD
 Antes de mostrarme cualquier respuesta, realiza un control de calidad interno: “¿Cada afirmación, artículo o procedimiento citado es real, está vigente en Venezuela y es verificable? Si no, corrígelo hasta que lo sea.”
  
 OUTPUT FORMAT:
-- Para Asesoría/Análisis de Casos: Comienza con una "Opinión Legal Ejecutiva" (resumen), seguida del "Marco Legal Aplicable" (artículos y leyes), "Análisis de Riesgos/Beneficios" and "Recomendaciones Estratégicas".
+- Para Asesoría/Análisis de Casos: Comienza con una "Opinión Legal Ejecutiva" (resumen), seguida del "Marco Legal Aplicable" (artículos y leyes), "Análisis de Riesgos/Beneficios" y "Recomendaciones Estratégicas".
 - Para Redacción de Contratos: El documento debe ser autocontenido, con un lenguaje formal, reiterativo y conservador, típico de la contratación mercantil venezolana. Debes aplicar estrictamente las siguientes reglas de diseño y técnica legislativa:
   1. Tipografía y Estilo: Usa negritas para los nombres de las partes, números de cédula/RIF, montos, fechas y términos clave.
   2. Identificación de Partes: Subraya las denominaciones de las partes (ej. LOS ARRENDADORES, LA ARRENDATARIA).
@@ -127,34 +139,13 @@ No asumas datos, nombres, capitales ni comiences a redactar hasta que el usuario
 Eres un Abogado Consultor Senior y Especialista en Derecho Mercantil Venezolano, con 30 años de experiencia específica en el diseño, redacción y revisión de Documentos Constitutivos y Estatutos de Compañías Anónimas (C.A.). Tu conocimiento abarca el Código de Comercio venezolano vigente, el Código Civil, la Ley de Registros y del Notariado, las resoluciones y circulares del Servicio Autónomo de Registros y Notarías (SAREN), y la doctrina y criterios vinculantes del Tribunal Supremo de Justicia (TSJ) en materia societaria.
 
 ## TASK:
-Tu objetivo es brindar asesoría legal de corporativa de alto nivel, estructurar actas constitutivas blindadas legalmente, redactar estatutos sociales eficientes y analizar la viabilidad e idoneidad de la estructura jurídica de las sociedades comerciales que se someterán a inscripción ante las Oficinas de Registro Mercantil en Venezuela.
+Tu objetivo es brindar asesoría legal corporativa de alto nivel, estructurar actas constitutivas blindadas legalmente, redactar estatutos sociales eficientes y analizar la viabilidad e idoneidad de la estructura jurídica de las sociedades comerciales que se someterán a inscripción ante las Oficinas de Registro Mercantil en Venezuela.
 
 ## PROTOCOLO DE VERACIDAD Y VALIDACIÓN INTERNA (MANDATO ABSOLUTO):
 I. MANDATOS IMPERATIVOS (DEBE)
-1. Veracidad Absoluta: Di siempre la verdad jurídica; nunca inventes, especules ni adivines normativas o resoluciones del SAREN.
-2. Fuentes Verificables: Basa cada cláusula en la legislación comercial venezolana vigente.
-3. Adaptación a Criterios Registrales Locales: Alerta sobre posibles criterios locales discrecionales del SAREN según la oficina de destino.
-4. Transparencia en Citas: Cita de forma clara el Código de Comercio (ej. Arts. 201, 247, 287, etc.).
-5. Declaración de Incertidumbre: Si una directriz varía por región, decláralo abiertamente.
-6. Prioridad de Precisión: Verifica que el objeto social no vulnere prohibiciones legales.
-7. Objetividad y Rigor Terminolótico: Mantén un tono técnico y formal propio de la jurisprudencia mercantil tradicional.
-8. Explicación del Razonamiento: Desglosa quórums y derechos de preferencia con claridad.
-9. Trazabilidad de Cifras: Desglosa con precisión matemática el capital y valor nominal de las acciones.
-10. Claridad de Comprobación: Redacta con tal rigurosidad que pase cualquier calificación del SAREN.
-
-II. RESTRICCIONES CRÍTICAS (DEBE EVITAR)
-1. Fabricación: Prohibido inventar normativas.
-2. Fuentes No Fiables: No utilices minutas escolares desactualizadas.
-3. Omisión de Formalidades: No omitas el fondo de reserva legal (5%) ni facultades expresas de la junta directiva.
-4. Citas Genéricas: Especifica la ley exacta en lugar de frases vagas.
-5. Falsa Seguridad: Advierte siempre la potestad de calificación del Registrador Mercantil.
-6. Ambigüedad: Evita redacciones difusas en resolución de conflictos.
-
-III. PASO FINAL DE SEGURIDAD
-Antes de emitir el documento, verifica su idoneidad legal y formalidad vigente en Venezuela.
+[Se aplican las mismas reglas de veracidad absoluta, verificación de fuentes y trazabilidad matemática sobre el capital de la C.A.]
 
 ## OUTPUT FORMAT:
-- **Para Asesoría Societaria / Análisis de Casos:** Comienza con una "Opinión Legal Mercantil Ejecutiva", seguida del "Marco Técnico-Comercial Aplicable", "Evaluación de Riesgos Estatutarios Locales" y "Recomendaciones de Estructuración".
 - **Para Redacción de Documentos Constitutivos y Estatutos:** El documento debe ser autocontenido, solemne y conservador. Aplica las siguientes reglas:
   1. Tipografía y Estilo: Usa negritas para nombres, cédulas/RIF, capitales y cargos.
   2. Identificación de Denominaciones: Subraya términos como LA COMPAÑÍA, LA JUNTA DIRECTIVA, LA ASAMBLEA GENERAL.
@@ -200,7 +191,7 @@ def crear_documento_word(texto_legal):
     for linea in texto_legal.split('\n'):
         doc.add_paragraph(linea)
     
-    # ANEXAR EL AVISO LEGAL AL PIE DEL DOCUMENTO GENERADO (.DOCX)
+    # Anexar el Aviso Legal requerido al final del Word
     doc.add_paragraph("\n" + "="*50 + "\n")
     p_aviso = doc.add_paragraph()
     run_aviso = p_aviso.add_run(AVISO_LEGAL_TEXTO)
@@ -214,7 +205,7 @@ def crear_documento_word(texto_legal):
 # ------------------------------------------------------------------
 # FUNCIÓN PARA ENVIAR EL CORREO ELECTRÓNICO CON EL ARCHIVO ADJUNTO
 # ------------------------------------------------------------------
-def enviar_correo_con_adjunto(correo_destino, texto_legal, archivo_bytes):
+def enviar_correo_con_adjunto(correo_destino, texto_legal, archivo_bytes, nombre_archivo_correlativo):
     try:
         remitente = st.secrets["EMAIL_REMITENTE"]
         password = st.secrets["EMAIL_PASSWORD"]
@@ -230,7 +221,7 @@ def enviar_correo_con_adjunto(correo_destino, texto_legal, archivo_bytes):
         adjunto = MIMEBase('application', 'octet-stream')
         adjunto.set_payload(archivo_bytes.read())
         encoders.encode_base64(adjunto)
-        adjunto.add_header('Content-Disposition', 'attachment', filename="documento_legal_blindado.docx")
+        adjunto.add_header('Content-Disposition', 'attachment', filename=nombre_archivo_correlativo)
         msg.attach(adjunto)
         
         server = smtplib.SMTP('smtp.gmail.com', 587)
@@ -242,6 +233,12 @@ def enviar_correo_con_adjunto(correo_destino, texto_legal, archivo_bytes):
     except Exception as e:
         st.error(f"Error al enviar el correo electrónico: {e}")
         return False
+
+# FUNCIONES DE RETORNO (CALLBACKS) PARA INCREMENTAR CONTADORES
+def registrar_descarga():
+    st.session_state["contador_descargas"] += 1
+    # Incrementa el correlativo para la próxima generación de documento
+    st.session_state["correlativo_documento"] += 1
 
 # Botón para activar el procesamiento
 if st.button("Generar Documento Legal"):
@@ -258,15 +255,19 @@ if "documento_resultado" in st.session_state:
     st.markdown("### 📄 Previsualización del Documento:")
     st.write(st.session_state["documento_resultado"])
     
+    # Construcción dinámica del nombre con nomenclatura correlativa autoincremental
+    nombre_archivo = f"documento_legal_blindado_{st.session_state['correlativo_documento']}.docx"
+    
     archivo_word_descarga = crear_documento_word(st.session_state["documento_resultado"])
     archivo_word_correo = crear_documento_word(st.session_state["documento_resultado"])
     
-    # Opción A: Descarga Local
+    # Opción A: Descarga Local con Callback registrado
     st.download_button(
-        label="📥 Descargar Documento en formato Word (.docx)",
+        label=f"📥 Descargar Documento como '{nombre_archivo}'",
         data=archivo_word_descarga,
-        file_name="documento_legal_blindado.docx",
-        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        file_name=nombre_archivo,
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        on_click=registrar_descarga
     )
     
     st.markdown("---")
@@ -280,15 +281,32 @@ if "documento_resultado" in st.session_state:
             st.error("⚠️ Por favor, introduzca una dirección de correo electrónico válida.")
         else:
             with st.spinner("🚀 Enviando correo con el archivo adjunto..."):
-                exito = enviar_correo_con_adjunto(email_cliente, st.session_state["documento_resultado"], archivo_word_correo)
+                exito = enviar_correo_con_adjunto(email_cliente, st.session_state["documento_resultado"], archivo_word_correo, nombre_archivo)
                 if exito:
-                    st.success(f"📬 ¡Correo enviado con éxito a {email_cliente}!")
+                    st.session_state["contador_envios"] += 1
+                    st.session_state["correlativo_documento"] += 1
+                    st.success(f"📬 ¡Correo enviado con éxito a {email_cliente}! Archivo enviado: {nombre_archivo}")
+                    st.rerun()
 
 # ------------------------------------------------------------------
 # ANEXAR AVISO LEGAL AL PIE DE LA PÁGINA WEB
 # ------------------------------------------------------------------
 st.markdown("---")
 st.warning(AVISO_LEGAL_TEXTO)
+
+# ------------------------------------------------------------------
+# CONTADOR EN INTERFAZ: PARTE INFERIOR CENTRAL DE LA PÁGINA WEB
+# ------------------------------------------------------------------
+st.markdown("---")
+col_izq, col_centro, col_der = st.columns([1, 2, 1])
+
+with col_centro:
+    st.markdown("<h4 style='text-align: center; color: gray;'>📊 Panel de Control y Módulos de Entrega</h4>", unsafe_allow_html=True)
+    metric_col1, metric_col2 = st.columns(2)
+    with metric_col1:
+        st.metric(label="📥 Total Descargas Realizadas", value=st.session_state["contador_descargas"])
+    with metric_col2:
+        st.metric(label="🚀 Total Correos Enviados", value=st.session_state["contador_envios"])
 
 # ------------------------------------------------------------------
 # SECCIÓN DE SOPORTE, COMENTARIOS Y CONTACTO
